@@ -63,7 +63,7 @@ const localIp = getLocalIpAddress();
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log('========================================================');
-  console.log('🌸 PinkWallet Server Aktif Berjalan! 🌸');
+  console.log('🌸 NiaWallet Server Aktif Berjalan! 🌸');
   console.log('========================================================');
   console.log(`💻 Akses di Komputer ini : http://localhost:${PORT}`);
   console.log(`📱 Akses di Browser HP   : http://${localIp}:${PORT}`);

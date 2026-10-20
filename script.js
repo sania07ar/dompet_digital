@@ -1,5 +1,5 @@
 /**
- * PinkWallet - Web Aplikasi Pencatatan Keuangan Pribadi Mobile-First
+ * NiaWallet - Web Aplikasi Pencatatan Keuangan Pribadi Mobile-First
  * Pure JavaScript (ES6+), LocalStorage, Chart.js
  */
 
@@ -8,10 +8,10 @@
 // ===================================================================
 
 const STORAGE_KEYS = {
-  TRANSACTIONS: 'pinkwallet_transactions_v1',
-  BUDGETS: 'pinkwallet_budgets_v1',
-  GOALS: 'pinkwallet_goals_v1',
-  SETTINGS: 'pinkwallet_settings_v1',
+  TRANSACTIONS: 'niawallet_transactions_v1',
+  BUDGETS: 'niawallet_budgets_v1',
+  GOALS: 'niawallet_goals_v1',
+  SETTINGS: 'niawallet_settings_v1',
 };
 
 const EXPENSE_CATEGORIES = [
@@ -166,16 +166,16 @@ function generateId() {
 
 function loadAllData() {
   try {
-    const rawTx = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+    const rawTx = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || localStorage.getItem('pinkwallet_transactions_v1');
     state.transactions = rawTx ? JSON.parse(rawTx) : [];
 
-    const rawBudgets = localStorage.getItem(STORAGE_KEYS.BUDGETS);
+    const rawBudgets = localStorage.getItem(STORAGE_KEYS.BUDGETS) || localStorage.getItem('pinkwallet_budgets_v1');
     state.budgets = rawBudgets ? JSON.parse(rawBudgets) : { overallMonthlyLimit: 0, categoryBudgets: {} };
 
-    const rawGoals = localStorage.getItem(STORAGE_KEYS.GOALS);
+    const rawGoals = localStorage.getItem(STORAGE_KEYS.GOALS) || localStorage.getItem('pinkwallet_goals_v1');
     state.goals = rawGoals ? JSON.parse(rawGoals) : [];
 
-    const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS) || localStorage.getItem('pinkwallet_settings_v1');
     state.settings = rawSettings ? JSON.parse(rawSettings) : { hideBalance: false };
   } catch (err) {
     console.error('Gagal memuat data dari LocalStorage:', err);
@@ -1940,7 +1940,7 @@ function renderSettingsView() {
 
 function exportJSONBackup() {
   const backupData = {
-    appName: 'PinkWallet',
+    appName: 'NiaWallet',
     version: '1.0',
     exportDate: new Date().toISOString(),
     transactions: state.transactions,
@@ -1954,7 +1954,7 @@ function exportJSONBackup() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `pinkwallet-cadangan-${getTodayDateString()}.json`;
+  a.download = `niawallet-cadangan-${getTodayDateString()}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2029,7 +2029,7 @@ function exportTransactionsToCSV(filterMonthPrefix = null) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  const fileName = filterMonthPrefix ? `pinkwallet-transaksi-${filterMonthPrefix}.csv` : `pinkwallet-semua-transaksi-${getTodayDateString()}.csv`;
+  const fileName = filterMonthPrefix ? `niawallet-transaksi-${filterMonthPrefix}.csv` : `niawallet-semua-transaksi-${getTodayDateString()}.csv`;
   a.download = fileName;
   document.body.appendChild(a);
   a.click();
