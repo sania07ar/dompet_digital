@@ -1,32 +1,40 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#fce7f3">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="description" content="PinkWallet - Aplikasi pencatatan keuangan pribadi aesthetic, feminin, dan modern untuk browser HP.">
+  <meta name="description"
+    content="PinkWallet - Aplikasi pencatatan keuangan pribadi aesthetic, feminin, dan modern untuk browser HP.">
   <title>PinkWallet • Keuangan Pribadi Cantik & Rapi</title>
-  
+
   <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Font Awesome 6 Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <!-- App Container (Constrained on Desktop, 100% on Mobile) -->
   <div class="app-layout" id="app">
-    
+
     <!-- Top Header App Bar -->
     <header class="top-bar">
       <div class="brand">
@@ -34,12 +42,13 @@
           <i class="fa-solid fa-heart"></i>
         </div>
         <div class="brand-text">
-          <h1 class="brand-title">PinkWallet</h1>
+          <h1 class="brand-title">Nia Wallet</h1>
           <span class="brand-subtitle" id="currentDateDisplay">Memuat tanggal...</span>
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="icon-btn" id="btnOpenSettings" title="Pengaturan & Cadangan" aria-label="Buka Pengaturan">
+        <button type="button" class="icon-btn" id="btnOpenSettings" title="Pengaturan & Cadangan"
+          aria-label="Buka Pengaturan">
           <i class="fa-solid fa-gear"></i>
         </button>
       </div>
@@ -47,12 +56,12 @@
 
     <!-- Main Views Scroll Area -->
     <main class="content-area" id="mainContent">
-      
+
       <!-- ============================================== -->
       <!-- VIEW 1: DASHBOARD (BERANDA) -->
       <!-- ============================================== -->
       <section class="tab-view active" id="view-dashboard">
-        
+
         <!-- Saldo Card -->
         <div class="balance-card">
           <div class="balance-card-bg-circle circle-1"></div>
@@ -60,12 +69,13 @@
           <div class="balance-card-content">
             <div class="balance-meta">
               <span class="balance-label"><i class="fa-solid fa-wallet"></i> Total Saldo Saat Ini</span>
-              <button type="button" class="toggle-eye-btn" id="toggleBalanceVisibility" title="Sembunyikan/Tampilkan Saldo">
+              <button type="button" class="toggle-eye-btn" id="toggleBalanceVisibility"
+                title="Sembunyikan/Tampilkan Saldo">
                 <i class="fa-regular fa-eye" id="eyeIcon"></i>
               </button>
             </div>
             <div class="balance-amount" id="totalBalanceDisplay">Rp 0</div>
-            
+
             <div class="balance-stats-row">
               <div class="stat-pill stat-income">
                 <div class="stat-pill-icon"><i class="fa-solid fa-arrow-down-left"></i></div>
@@ -92,7 +102,8 @@
               <span class="badge-soft badge-pink"><i class="fa-solid fa-chart-pie"></i> Anggaran Bulan Ini</span>
               <h3 class="card-title-sm" id="budgetLimitTitle">Batas: Rp 0</h3>
             </div>
-            <button type="button" class="link-btn" onclick="navigateToTab('budget')">Atur <i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" class="link-btn" onclick="navigateToTab('budget')">Atur <i
+                class="fa-solid fa-chevron-right"></i></button>
           </div>
           <div class="progress-bar-container">
             <div class="progress-bar-track">
@@ -147,7 +158,8 @@
         <div class="section-container">
           <div class="section-header">
             <h3 class="section-title"><i class="fa-solid fa-bullseye text-pink"></i> Target Tabungan</h3>
-            <button type="button" class="link-btn" onclick="navigateToTab('budget')">Lihat Semua <i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" class="link-btn" onclick="navigateToTab('budget')">Lihat Semua <i
+                class="fa-solid fa-chevron-right"></i></button>
           </div>
           <div id="dashboardGoalsList" class="goals-carousel">
             <!-- Populated via JS -->
@@ -158,7 +170,8 @@
         <div class="section-container">
           <div class="section-header">
             <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left text-pink"></i> Transaksi Terbaru</h3>
-            <button type="button" class="link-btn" onclick="navigateToTab('transactions')">Lihat Riwayat <i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" class="link-btn" onclick="navigateToTab('transactions')">Lihat Riwayat <i
+                class="fa-solid fa-chevron-right"></i></button>
           </div>
           <div id="dashboardRecentList" class="transaction-list">
             <!-- Populated via JS -->
@@ -183,7 +196,8 @@
           <div class="search-input-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="txSearchInput" placeholder="Cari catatan atau kategori..." autocomplete="off">
-            <button type="button" id="txSearchClear" class="clear-input-btn hidden"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" id="txSearchClear" class="clear-input-btn hidden"><i
+                class="fa-solid fa-xmark"></i></button>
           </div>
 
           <!-- Type Filter Tabs -->
@@ -265,14 +279,15 @@
           <div class="card budget-main-card">
             <div class="card-header">
               <div>
-                <span class="badge-soft badge-purple"><i class="fa-regular fa-calendar-check"></i> Batas Pengeluaran Bulanan</span>
+                <span class="badge-soft badge-purple"><i class="fa-regular fa-calendar-check"></i> Batas Pengeluaran
+                  Bulanan</span>
                 <h3 class="card-title mt-1" id="overallBudgetAmount">Rp 0</h3>
               </div>
               <button type="button" class="btn-secondary-sm" id="btnEditOverallBudget">
                 <i class="fa-solid fa-pen-to-square"></i> Atur
               </button>
             </div>
-            
+
             <div class="progress-bar-container mt-2">
               <div class="progress-bar-track">
                 <div class="progress-bar-fill" id="overallBudgetFill" style="width: 0%;"></div>
@@ -359,7 +374,8 @@
             <h3 class="report-stat-value text-expense" id="reportExpenseTotal">Rp 0</h3>
           </div>
           <div class="card stat-report-card col-span-2">
-            <span class="report-stat-label"><i class="fa-solid fa-scale-balanced text-purple"></i> Selisih / Arus Kas Bersih</span>
+            <span class="report-stat-label"><i class="fa-solid fa-scale-balanced text-purple"></i> Selisih / Arus Kas
+              Bersih</span>
             <h3 class="report-stat-value text-purple" id="reportNetTotal">Rp 0</h3>
             <span class="report-stat-hint" id="reportNetHint">Pemasukan seimbang dengan pengeluaran</span>
           </div>
@@ -423,8 +439,9 @@
           <div class="card-header">
             <h3 class="card-title"><i class="fa-solid fa-cloud-arrow-up text-pink"></i> Cadangkan & Pulihkan</h3>
           </div>
-          <p class="card-desc">Semua data tersimpan rapi di memori lokal HP (LocalStorage). Ekspor cadangan file secara berkala agar tidak hilang jika browser dibersihkan.</p>
-          
+          <p class="card-desc">Semua data tersimpan rapi di memori lokal HP (LocalStorage). Ekspor cadangan file secara
+            berkala agar tidak hilang jika browser dibersihkan.</p>
+
           <div class="action-buttons-group">
             <button type="button" class="btn-outline-full" id="btnExportJSON">
               <i class="fa-solid fa-download"></i> Ekspor Cadangan (JSON)
@@ -432,7 +449,7 @@
             <button type="button" class="btn-outline-full" id="btnExportCSVAll">
               <i class="fa-solid fa-file-csv"></i> Unduh Transaksi (CSV Excel)
             </button>
-            
+
             <label class="btn-outline-full btn-file-label" for="importFileInput">
               <i class="fa-solid fa-upload"></i> Pulihkan Data Cadangan (JSON)
               <input type="file" id="importFileInput" accept=".json" class="hidden-file-input">
@@ -458,7 +475,8 @@
             <button type="button" class="btn-danger-outline" id="btnResetAllData">
               <i class="fa-solid fa-trash-can"></i> Hapus Seluruh Data Aplikasi
             </button>
-            <span class="danger-hint">Tindakan ini akan menghapus semua transaksi, target tabungan, dan anggaran dari browser ini.</span>
+            <span class="danger-hint">Tindakan ini akan menghapus semua transaksi, target tabungan, dan anggaran dari
+              browser ini.</span>
           </div>
         </div>
 
@@ -471,7 +489,8 @@
           <ul class="tip-list">
             <li>Buka browser Chrome atau Safari di HP Anda.</li>
             <li>Pilih menu titik tiga (Chrome) atau tombol Share (Safari).</li>
-            <li>Pilih <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> agar PinkWallet terbuka layaknya aplikasi native tanpa address bar!</li>
+            <li>Pilih <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> agar PinkWallet terbuka layaknya
+              aplikasi native tanpa address bar!</li>
           </ul>
         </div>
       </section>
@@ -491,7 +510,8 @@
       </button>
 
       <!-- Center Floating Add Button -->
-      <button type="button" class="nav-item nav-fab" id="fabAddBtn" onclick="openTransactionModal('expense')" aria-label="Tambah Transaksi">
+      <button type="button" class="nav-item nav-fab" id="fabAddBtn" onclick="openTransactionModal('expense')"
+        aria-label="Tambah Transaksi">
         <div class="fab-circle">
           <i class="fa-solid fa-plus"></i>
         </div>
@@ -595,13 +615,15 @@
         </button>
       </div>
       <form id="formOverallBudget" autocomplete="off">
-        <p class="modal-desc">Tentukan batas maksimal total pengeluaran Anda dalam satu bulan untuk mengontrol keuangan.</p>
-        
+        <p class="modal-desc">Tentukan batas maksimal total pengeluaran Anda dalam satu bulan untuk mengontrol keuangan.
+        </p>
+
         <div class="form-group">
           <label for="inputOverallBudget" class="form-label">Nominal Batas Pengeluaran (Rp)</label>
           <div class="input-currency-wrapper">
             <span class="currency-prefix">Rp</span>
-            <input type="text" id="inputOverallBudget" inputmode="numeric" placeholder="Contoh: 3.000.000" class="input-currency" required>
+            <input type="text" id="inputOverallBudget" inputmode="numeric" placeholder="Contoh: 3.000.000"
+              class="input-currency" required>
           </div>
           <span class="input-hint" id="overallBudgetWordHint">Batas pengeluaran bulanan</span>
         </div>
@@ -640,7 +662,8 @@
           <label for="inputCatBudgetLimit" class="form-label">Batas Anggaran Bulanan (Rp)</label>
           <div class="input-currency-wrapper">
             <span class="currency-prefix">Rp</span>
-            <input type="text" id="inputCatBudgetLimit" inputmode="numeric" placeholder="Contoh: 1.000.000" class="input-currency" required>
+            <input type="text" id="inputCatBudgetLimit" inputmode="numeric" placeholder="Contoh: 1.000.000"
+              class="input-currency" required>
           </div>
         </div>
 
@@ -669,7 +692,8 @@
 
         <div class="form-group">
           <label for="goalNameInput" class="form-label">Nama Target Impian <span class="required">*</span></label>
-          <input type="text" id="goalNameInput" class="styled-input" placeholder="Contoh: Liburan ke Bali, Beli iPad, Dana Darurat" required>
+          <input type="text" id="goalNameInput" class="styled-input"
+            placeholder="Contoh: Liburan ke Bali, Beli iPad, Dana Darurat" required>
         </div>
 
         <div class="form-group">
@@ -740,7 +764,8 @@
           <label for="inputDepositAmount" class="form-label">Nominal (Rp) <span class="required">*</span></label>
           <div class="input-currency-wrapper">
             <span class="currency-prefix">Rp</span>
-            <input type="text" id="inputDepositAmount" inputmode="numeric" placeholder="0" class="input-currency" required>
+            <input type="text" id="inputDepositAmount" inputmode="numeric" placeholder="0" class="input-currency"
+              required>
           </div>
         </div>
 
@@ -748,7 +773,8 @@
           <label class="custom-checkbox">
             <input type="checkbox" id="chkSyncWithBalance" checked>
             <span class="checkmark"></span>
-            <span class="checkbox-text" id="syncBalanceLabel">Sinkronkan dengan Saldo Dompet (Otomatis catat transaksi Tabungan agar saldo rapi)</span>
+            <span class="checkbox-text" id="syncBalanceLabel">Sinkronkan dengan Saldo Dompet (Otomatis catat transaksi
+              Tabungan agar saldo rapi)</span>
           </label>
         </div>
 
@@ -787,4 +813,5 @@
   <!-- Application Logic -->
   <script src="script.js"></script>
 </body>
+
 </html>
