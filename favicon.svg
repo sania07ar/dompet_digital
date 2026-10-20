@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="60%" stop-color="#ec4899" />
+      <stop offset="100%" stop-color="#d946ef" />
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#ec4899" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Rounded App Icon Background -->
+  <rect x="5" y="5" width="90" height="90" rx="26" fill="url(#pinkGrad)" filter="url(#softShadow)" />
+
+  <!-- Wallet Body -->
+  <rect x="22" y="32" width="56" height="42" rx="10" fill="#ffffff" />
+  
+  <!-- Wallet Flap / Fold -->
+  <path d="M22 40 C22 35 26 32 32 32 L68 32 C74 32 78 35 78 40 L78 44 C66 48 34 48 22 44 Z" fill="#fdf2f8" opacity="0.9" />
+
+  <!-- Cute Heart Clasp in Center -->
+  <path d="M50 56 C50 56 42 49 42 44.5 C42 41.5 44.5 39 47.5 39 C49 39 50 40 50 40 C50 40 51 39 52.5 39 C55.5 39 58 41.5 58 44.5 C58 49 50 56 50 56 Z" fill="#ec4899" />
+
+  <!-- Sparkle Accent (Top Right) -->
+  <path d="M74 20 Q74 25 79 25 Q74 25 74 30 Q74 25 69 25 Q74 25 74 20 Z" fill="#fef08a" />
+</svg>
