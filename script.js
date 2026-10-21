@@ -362,6 +362,58 @@ function switchBudgetSubTab(subTabName) {
 // TRANSACTION FORM & MODAL HANDLERS
 // ===================================================================
 
+function updateTxLiveWalletInfo() {
+  const radioExpense = document.getElementById('radioTxExpense');
+  const radioWalletCash = document.getElementById('radioWalletCash');
+  const amountInput = document.getElementById('txAmountInput');
+  const banner = document.getElementById('txWalletLiveInfo');
+  const titleEl = document.getElementById('txWalletLiveTitle');
+  const subEl = document.getElementById('txWalletLiveSub');
+  const walletLabel = document.getElementById('txWalletLabel');
+
+  if (!banner || !titleEl || !subEl) return;
+
+  const isExpense = radioExpense.checked;
+  const isCash = radioWalletCash.checked;
+  const walletName = isCash ? 'Uang Cash (Tunai)' : 'Bank / Digital';
+
+  if (walletLabel) {
+    walletLabel.innerHTML = isExpense
+      ? `Sumber Dana Pengeluaran <span class="required">*</span>`
+      : `Tujuan Dompet Pemasukan <span class="required">*</span>`;
+  }
+
+  const totals = calculateTotals();
+  const currentWalletBal = isCash ? totals.cashBalance : totals.bankBalance;
+  const amount = parseRupiahInput(amountInput.value);
+
+  banner.classList.remove('banner-warning', 'banner-success');
+
+  if (isExpense) {
+    if (amount > 0 && amount > currentWalletBal) {
+      banner.classList.add('banner-warning');
+      titleEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Saldo ${walletName} Tidak Cukup!`;
+      subEl.textContent = `Tersedia: ${formatRupiah(currentWalletBal)} • Kekurangan: ${formatRupiah(amount - currentWalletBal)}`;
+    } else {
+      banner.classList.add('banner-success');
+      titleEl.textContent = `Pengeluaran dari ${walletName}`;
+      if (amount > 0) {
+        subEl.textContent = `Sisa saldo ${walletName} setelah transaksi: ${formatRupiah(currentWalletBal - amount)}`;
+      } else {
+        subEl.textContent = `Saldo ${walletName} saat ini: ${formatRupiah(currentWalletBal)}`;
+      }
+    }
+  } else {
+    banner.classList.add('banner-success');
+    titleEl.textContent = `Pemasukan masuk ke ${walletName}`;
+    if (amount > 0) {
+      subEl.textContent = `Saldo baru setelah pemasukan: ${formatRupiah(currentWalletBal + amount)}`;
+    } else {
+      subEl.textContent = `Saldo ${walletName} saat ini: ${formatRupiah(currentWalletBal)}`;
+    }
+  }
+}
+
 function openTransactionModal(type = 'expense', editTxId = null) {
   state.selectedTxType = type;
   state.editingTxId = editTxId;
@@ -369,10 +421,18 @@ function openTransactionModal(type = 'expense', editTxId = null) {
   const modalTitle = document.getElementById('modalTxTitle');
   const radioExpense = document.getElementById('radioTxExpense');
   const radioIncome = document.getElementById('radioTxIncome');
+  const radioWalletCash = document.getElementById('radioWalletCash');
+  const radioWalletBank = document.getElementById('radioWalletBank');
+  const cashHint = document.getElementById('modalCashBalanceHint');
+  const bankHint = document.getElementById('modalBankBalanceHint');
   const amountInput = document.getElementById('txAmountInput');
   const dateInput = document.getElementById('txDateInput');
   const noteInput = document.getElementById('txNoteInput');
   const wordHint = document.getElementById('txAmountWordHint');
+
+  const totals = calculateTotals();
+  if (cashHint) cashHint.textContent = `Saldo: ${formatRupiah(totals.cashBalance)}`;
+  if (bankHint) bankHint.textContent = `Saldo: ${formatRupiah(totals.bankBalance)}`;
 
   if (editTxId) {
     const tx = state.transactions.find(t => t.id === editTxId);
@@ -386,6 +446,12 @@ function openTransactionModal(type = 'expense', editTxId = null) {
     noteInput.value = tx.note || '';
     state.selectedCategory = tx.category;
 
+    if (tx.wallet === 'cash') {
+      radioWalletCash.checked = true;
+    } else {
+      radioWalletBank.checked = true;
+    }
+
     if (tx.type === 'income') {
       radioIncome.checked = true;
     } else {
@@ -397,6 +463,7 @@ function openTransactionModal(type = 'expense', editTxId = null) {
     wordHint.textContent = 'Nol rupiah';
     dateInput.value = getTodayDateString();
     noteInput.value = '';
+    radioWalletBank.checked = true;
 
     if (type === 'income') {
       radioIncome.checked = true;
@@ -408,6 +475,7 @@ function openTransactionModal(type = 'expense', editTxId = null) {
   }
 
   renderCategoryPills(state.selectedTxType, state.selectedCategory);
+  updateTxLiveWalletInfo();
   openModal('modalTransaction');
   setTimeout(() => amountInput.focus(), 200);
 }
@@ -466,13 +534,20 @@ function initTransactionEvents() {
   const wordHint = document.getElementById('txAmountWordHint');
   const radioExpense = document.getElementById('radioTxExpense');
   const radioIncome = document.getElementById('radioTxIncome');
+  const radioWalletCash = document.getElementById('radioWalletCash');
+  const radioWalletBank = document.getElementById('radioWalletBank');
 
   // Real-time Rupiah input format
   amountInput.addEventListener('input', (e) => {
     const rawVal = parseRupiahInput(e.target.value);
     e.target.value = rawVal > 0 ? rawVal.toLocaleString('id-ID') : '';
     wordHint.textContent = numberToIndonesianWords(rawVal);
+    updateTxLiveWalletInfo();
   });
+
+  // Switch wallet radio buttons
+  if (radioWalletCash) radioWalletCash.addEventListener('change', updateTxLiveWalletInfo);
+  if (radioWalletBank) radioWalletBank.addEventListener('change', updateTxLiveWalletInfo);
 
   // Switch type radio buttons
   radioExpense.addEventListener('change', () => {
@@ -480,6 +555,7 @@ function initTransactionEvents() {
     state.selectedCategory = EXPENSE_CATEGORIES[0].name;
     renderCategoryPills('expense', state.selectedCategory);
     document.getElementById('modalTxTitle').textContent = state.editingTxId ? 'Edit Pengeluaran' : 'Tambah Pengeluaran';
+    updateTxLiveWalletInfo();
   });
 
   radioIncome.addEventListener('change', () => {
@@ -487,6 +563,7 @@ function initTransactionEvents() {
     state.selectedCategory = INCOME_CATEGORIES[0].name;
     renderCategoryPills('income', state.selectedCategory);
     document.getElementById('modalTxTitle').textContent = state.editingTxId ? 'Edit Pemasukan' : 'Tambah Pemasukan';
+    updateTxLiveWalletInfo();
   });
 
   // Submit form
@@ -496,6 +573,7 @@ function initTransactionEvents() {
     const date = document.getElementById('txDateInput').value;
     const note = document.getElementById('txNoteInput').value.trim();
     const type = radioExpense.checked ? 'expense' : 'income';
+    const wallet = radioWalletCash && radioWalletCash.checked ? 'cash' : 'bank';
     const category = state.selectedCategory || (type === 'income' ? INCOME_CATEGORIES[0].name : EXPENSE_CATEGORIES[0].name);
 
     // Validation
@@ -516,6 +594,7 @@ function initTransactionEvents() {
         state.transactions[index] = {
           ...state.transactions[index],
           type,
+          wallet,
           amount,
           category,
           date,
@@ -530,6 +609,7 @@ function initTransactionEvents() {
       const newTx = {
         id: generateId(),
         type,
+        wallet,
         amount,
         category,
         date,
@@ -538,7 +618,7 @@ function initTransactionEvents() {
       };
       state.transactions.unshift(newTx);
       saveTransactions();
-      showToast('Transaksi berhasil dicatat!', 'success');
+      showToast(`Transaksi ${wallet === 'cash' ? 'Cash' : 'Bank'} berhasil dicatat!`, 'success');
     }
 
     closeModal('modalTransaction');
@@ -780,9 +860,11 @@ function initGoalEvents() {
 
       // Sync with balance by recording an expense under Tabungan category
       if (syncBalance) {
+        const goalWallet = document.getElementById('radioGoalDepositCash')?.checked ? 'cash' : 'bank';
         state.transactions.unshift({
           id: generateId(),
           type: 'expense',
+          wallet: goalWallet,
           amount,
           category: 'Tabungan & Investasi',
           date: getTodayDateString(),
@@ -802,9 +884,11 @@ function initGoalEvents() {
 
       // Sync with balance by recording an income under Uang Bulanan / Tabungan
       if (syncBalance) {
+        const goalWallet = document.getElementById('radioGoalDepositCash')?.checked ? 'cash' : 'bank';
         state.transactions.unshift({
           id: generateId(),
           type: 'income',
+          wallet: goalWallet,
           amount,
           category: 'Uang Bulanan / Saku',
           date: getTodayDateString(),
@@ -858,11 +942,19 @@ function openDepositModal(goalId) {
   const goal = state.goals.find(g => g.id === goalId);
   if (!goal) return;
 
+  const totals = calculateTotals();
+  const cashHint = document.getElementById('goalDepositCashHint');
+  const bankHint = document.getElementById('goalDepositBankHint');
+  if (cashHint) cashHint.textContent = `Saldo: ${formatRupiah(totals.cashBalance)}`;
+  if (bankHint) bankHint.textContent = `Saldo: ${formatRupiah(totals.bankBalance)}`;
+
   document.getElementById('depositGoalId').value = goal.id;
   document.getElementById('depositModalTitle').textContent = `Alokasi: ${goal.name}`;
   document.getElementById('radioDeposit').checked = true;
   document.getElementById('inputDepositAmount').value = '';
   document.getElementById('chkSyncWithBalance').checked = true;
+  const radioBank = document.getElementById('radioGoalDepositBank');
+  if (radioBank) radioBank.checked = true;
 
   openModal('modalGoalDeposit');
 }
@@ -900,22 +992,58 @@ function calculateTotals(periodFilter = 'this_month') {
   let allTimeIncome = 0;
   let allTimeExpense = 0;
 
+  let allTimeCashIncome = 0;
+  let allTimeCashExpense = 0;
+  let allTimeBankIncome = 0;
+  let allTimeBankExpense = 0;
+
+  let cashIncome = 0;
+  let cashExpense = 0;
+  let bankIncome = 0;
+  let bankExpense = 0;
+
   state.transactions.forEach(tx => {
     const amt = Number(tx.amount) || 0;
+    const isThisMonth = tx.date && tx.date.startsWith(thisMonthPrefix);
+    const isCash = tx.wallet === 'cash';
+
     if (tx.type === 'income') {
       allTimeIncome += amt;
-      if (tx.date && tx.date.startsWith(thisMonthPrefix)) {
-        totalIncome += amt;
+      if (isThisMonth) totalIncome += amt;
+
+      if (isCash) {
+        allTimeCashIncome += amt;
+        if (isThisMonth) cashIncome += amt;
+      } else {
+        allTimeBankIncome += amt;
+        if (isThisMonth) bankIncome += amt;
       }
-    } else {
+    } else if (tx.type === 'expense') {
       allTimeExpense += amt;
-      if (tx.date && tx.date.startsWith(thisMonthPrefix)) {
-        totalExpense += amt;
+      if (isThisMonth) totalExpense += amt;
+
+      if (isCash) {
+        allTimeCashExpense += amt;
+        if (isThisMonth) cashExpense += amt;
+      } else {
+        allTimeBankExpense += amt;
+        if (isThisMonth) bankExpense += amt;
+      }
+    } else if (tx.type === 'transfer') {
+      // Transfer shifts balance between Cash and Bank
+      if (tx.fromWallet === 'bank' && tx.toWallet === 'cash') {
+        allTimeBankExpense += amt;
+        allTimeCashIncome += amt;
+      } else if (tx.fromWallet === 'cash' && tx.toWallet === 'bank') {
+        allTimeCashExpense += amt;
+        allTimeBankIncome += amt;
       }
     }
   });
 
-  const totalBalance = allTimeIncome - allTimeExpense;
+  const cashBalance = allTimeCashIncome - allTimeCashExpense;
+  const bankBalance = allTimeBankIncome - allTimeBankExpense;
+  const totalBalance = cashBalance + bankBalance;
 
   return {
     totalBalance,
@@ -923,6 +1051,12 @@ function calculateTotals(periodFilter = 'this_month') {
     totalExpense,
     allTimeIncome,
     allTimeExpense,
+    cashBalance,
+    bankBalance,
+    cashIncome,
+    cashExpense,
+    bankIncome,
+    bankExpense,
   };
 }
 
@@ -931,15 +1065,21 @@ function renderDashboard() {
 
   // Balance & Stats
   const balDisplay = document.getElementById('totalBalanceDisplay');
+  const cashBalDisplay = document.getElementById('cashBalanceDisplay');
+  const bankBalDisplay = document.getElementById('bankBalanceDisplay');
   const incDisplay = document.getElementById('monthIncomeDisplay');
   const expDisplay = document.getElementById('monthExpenseDisplay');
   const eyeIcon = document.getElementById('eyeIcon');
 
   if (state.settings.hideBalance) {
     balDisplay.textContent = 'Rp ••••••••';
+    if (cashBalDisplay) cashBalDisplay.textContent = 'Rp ••••••';
+    if (bankBalDisplay) bankBalDisplay.textContent = 'Rp ••••••';
     eyeIcon.className = 'fa-regular fa-eye-slash';
   } else {
     balDisplay.textContent = formatRupiah(totals.totalBalance);
+    if (cashBalDisplay) cashBalDisplay.textContent = formatRupiah(totals.cashBalance);
+    if (bankBalDisplay) bankBalDisplay.textContent = formatRupiah(totals.bankBalance);
     eyeIcon.className = 'fa-regular fa-eye';
   }
 
@@ -1075,16 +1215,58 @@ function renderDashboardRecentTransactions() {
 function createTransactionElement(tx, showControls = false) {
   const catDef = findCategoryDef(tx.category, tx.type);
   const isIncome = tx.type === 'income';
+  const isTransfer = tx.type === 'transfer';
 
   const el = document.createElement('div');
   el.className = 'tx-item';
+
+  if (isTransfer) {
+    const isBankToCash = tx.fromWallet === 'bank';
+    el.innerHTML = `
+      <div class="tx-left">
+        <div class="tx-icon-box" style="background-color: #ede9fe; color: #8b5cf6">
+          <i class="fa-solid fa-right-left"></i>
+        </div>
+        <div class="tx-details">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span class="tx-category">${escapeHtml(tx.category || 'Pindah Dana')}</span>
+            <span class="tx-wallet-pill wallet-tag-transfer">
+              <i class="fa-solid fa-right-left"></i> ${isBankToCash ? 'Bank ➔ Cash' : 'Cash ➔ Bank'}
+            </span>
+          </div>
+          ${tx.note ? `<span class="tx-note">${escapeHtml(tx.note)}</span>` : ''}
+          <span class="tx-date-badge">${formatIndonesianDate(tx.date)}</span>
+        </div>
+      </div>
+      <div class="tx-right">
+        <span class="tx-amount" style="color: #8b5cf6">
+          ${formatRupiah(tx.amount)}
+        </span>
+        <div class="tx-actions-quick">
+          <button type="button" class="tx-action-btn" title="Hapus" onclick="deleteTransaction('${tx.id}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    return el;
+  }
+
+  const isCash = tx.wallet === 'cash';
+  const walletBadge = isCash
+    ? `<span class="tx-wallet-pill wallet-tag-cash" title="Uang Cash / Tunai"><i class="fa-solid fa-money-bill-wave"></i> Cash</span>`
+    : `<span class="tx-wallet-pill wallet-tag-bank" title="Bank & Digital"><i class="fa-solid fa-building-columns"></i> Bank/Digital</span>`;
+
   el.innerHTML = `
     <div class="tx-left">
       <div class="tx-icon-box" style="background-color: ${catDef.bg}; color: ${catDef.color}">
         <i class="fa-solid ${catDef.icon}"></i>
       </div>
       <div class="tx-details">
-        <span class="tx-category">${escapeHtml(tx.category)}</span>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span class="tx-category">${escapeHtml(tx.category)}</span>
+          ${walletBadge}
+        </div>
         ${tx.note ? `<span class="tx-note">${escapeHtml(tx.note)}</span>` : ''}
         <span class="tx-date-badge">${formatIndonesianDate(tx.date)}</span>
       </div>
@@ -1221,6 +1403,7 @@ function renderMiniCashflowChart() {
 let currentTxFilter = {
   search: '',
   type: 'all',
+  wallet: 'all',
   category: 'all',
   period: 'all',
   startDate: '',
@@ -1232,6 +1415,7 @@ function initTransactionFilterEvents() {
   const clearBtn = document.getElementById('txSearchClear');
   const typePills = document.getElementById('txTypePills');
   const catSelect = document.getElementById('txFilterCategory');
+  const walletSelect = document.getElementById('txFilterWallet');
   const periodSelect = document.getElementById('txFilterPeriod');
   const customDateRow = document.getElementById('txCustomDateRow');
   const startDateInput = document.getElementById('txFilterStartDate');
@@ -1267,6 +1451,14 @@ function initTransactionFilterEvents() {
     currentTxFilter.category = e.target.value;
     renderTransactionsView();
   });
+
+  // Wallet select
+  if (walletSelect) {
+    walletSelect.addEventListener('change', (e) => {
+      currentTxFilter.wallet = e.target.value;
+      renderTransactionsView();
+    });
+  }
 
   // Period select
   periodSelect.addEventListener('change', (e) => {
@@ -1343,6 +1535,23 @@ function renderTransactionsView() {
   const filtered = state.transactions.filter(tx => {
     // Type filter
     if (currentTxFilter.type !== 'all' && tx.type !== currentTxFilter.type) return false;
+
+    // Wallet filter
+    if (currentTxFilter.wallet && currentTxFilter.wallet !== 'all') {
+      if (currentTxFilter.wallet === 'cash') {
+        if (tx.type === 'transfer') {
+          if (tx.fromWallet !== 'cash' && tx.toWallet !== 'cash') return false;
+        } else if (tx.wallet !== 'cash') {
+          return false;
+        }
+      } else if (currentTxFilter.wallet === 'bank') {
+        if (tx.type === 'transfer') {
+          if (tx.fromWallet !== 'bank' && tx.toWallet !== 'bank') return false;
+        } else if (tx.wallet === 'cash') {
+          return false;
+        }
+      }
+    }
 
     // Category filter
     if (currentTxFilter.category !== 'all' && tx.category !== currentTxFilter.category) return false;
@@ -1674,18 +1883,28 @@ function renderReportsView() {
     dailyExpense[dayStr] = 0;
   }
 
+  let cashIncomeMonth = 0;
+  let cashExpenseMonth = 0;
+  let bankIncomeMonth = 0;
+  let bankExpenseMonth = 0;
+
   state.transactions.forEach(tx => {
     if (tx.date && tx.date.startsWith(prefix)) {
       const amt = Number(tx.amount) || 0;
       const day = tx.date.split('-')[2];
+      const isCash = tx.wallet === 'cash';
 
       if (tx.type === 'income') {
         totalIncome += amt;
         if (dailyIncome[day] !== undefined) dailyIncome[day] += amt;
-      } else {
+        if (isCash) cashIncomeMonth += amt;
+        else bankIncomeMonth += amt;
+      } else if (tx.type === 'expense') {
         totalExpense += amt;
         if (dailyExpense[day] !== undefined) dailyExpense[day] += amt;
         categoryExpenses[tx.category] = (categoryExpenses[tx.category] || 0) + amt;
+        if (isCash) cashExpenseMonth += amt;
+        else bankExpenseMonth += amt;
       }
     }
   });
@@ -1695,6 +1914,16 @@ function renderReportsView() {
   document.getElementById('reportIncomeTotal').textContent = formatRupiah(totalIncome);
   document.getElementById('reportExpenseTotal').textContent = formatRupiah(totalExpense);
   document.getElementById('reportNetTotal').textContent = formatRupiah(netCashflow);
+
+  const repCashExpEl = document.getElementById('reportCashExpTotal');
+  const repCashIncEl = document.getElementById('reportCashIncSub');
+  const repBankExpEl = document.getElementById('reportBankExpTotal');
+  const repBankIncEl = document.getElementById('reportBankIncSub');
+
+  if (repCashExpEl) repCashExpEl.textContent = formatRupiah(cashExpenseMonth);
+  if (repCashIncEl) repCashIncEl.textContent = `Masuk: ${formatRupiah(cashIncomeMonth)}`;
+  if (repBankExpEl) repBankExpEl.textContent = formatRupiah(bankExpenseMonth);
+  if (repBankIncEl) repBankIncEl.textContent = `Masuk: ${formatRupiah(bankIncomeMonth)}`;
 
   const netHint = document.getElementById('reportNetHint');
   if (netCashflow > 0) {
@@ -2017,12 +2246,16 @@ function exportTransactionsToCSV(filterMonthPrefix = null) {
   }
 
   // Header CSV (with UTF-8 BOM so Excel opens Indonesian characters cleanly)
-  let csvContent = '\uFEFFID,Tanggal,Tipe,Kategori,Nominal,Catatan\n';
+  let csvContent = '\uFEFFID,Tanggal,Tipe,Sumber Dana,Kategori,Nominal,Catatan\n';
 
   list.forEach(tx => {
     const safeNote = (tx.note || '').replace(/"/g, '""');
-    const typeLabel = tx.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
-    csvContent += `"${tx.id}","${tx.date}","${typeLabel}","${tx.category}",${tx.amount},"${safeNote}"\n`;
+    const typeLabel = tx.type === 'income' ? 'Pemasukan' : (tx.type === 'expense' ? 'Pengeluaran' : 'Pindah Dana');
+    const walletLabel = tx.type === 'transfer'
+      ? (tx.fromWallet === 'bank' ? 'Bank ke Cash (Tarik)' : 'Cash ke Bank (Setor)')
+      : (tx.wallet === 'cash' ? 'Uang Cash (Tunai)' : 'Bank / Digital');
+
+    csvContent += `"${tx.id}","${tx.date}","${typeLabel}","${walletLabel}","${tx.category}",${tx.amount},"${safeNote}"\n`;
   });
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -2072,12 +2305,116 @@ function updateDateHeader() {
   }
 }
 
+// ===================================================================
+// TRANSFER ANTAR DOMPET (PINDAH DANA: TARIK / SETOR TUNAI)
+// ===================================================================
+
+function openTransferModal() {
+  const radioBankToCash = document.getElementById('radioBankToCash');
+  const amountInput = document.getElementById('transferAmountInput');
+  const wordHint = document.getElementById('transferAmountWordHint');
+  const dateInput = document.getElementById('transferDateInput');
+  const noteInput = document.getElementById('transferNoteInput');
+
+  if (radioBankToCash) radioBankToCash.checked = true;
+  if (amountInput) amountInput.value = '';
+  if (wordHint) wordHint.textContent = 'Nol rupiah';
+  if (dateInput) dateInput.value = getTodayDateString();
+  if (noteInput) noteInput.value = '';
+
+  updateTransferSourceHint();
+  openModal('modalTransferWallet');
+  setTimeout(() => amountInput && amountInput.focus(), 200);
+}
+
+function updateTransferSourceHint() {
+  const totals = calculateTotals();
+  const radioBankToCash = document.getElementById('radioBankToCash');
+  const labelEl = document.querySelector('#transferSourceBalanceInfo .t-info-label');
+  const valEl = document.getElementById('transferSourceBalanceDisplay');
+
+  if (!valEl || !labelEl || !radioBankToCash) return;
+
+  const isBankToCash = radioBankToCash.checked;
+  if (isBankToCash) {
+    labelEl.textContent = 'Saldo Bank & Digital:';
+    valEl.textContent = formatRupiah(totals.bankBalance);
+  } else {
+    labelEl.textContent = 'Saldo Uang Cash (Tunai):';
+    valEl.textContent = formatRupiah(totals.cashBalance);
+  }
+}
+
+function initTransferEvents() {
+  const form = document.getElementById('formTransferWallet');
+  if (!form) return;
+
+  const radioBankToCash = document.getElementById('radioBankToCash');
+  const radioCashToBank = document.getElementById('radioCashToBank');
+  const amountInput = document.getElementById('transferAmountInput');
+  const wordHint = document.getElementById('transferAmountWordHint');
+
+  if (radioBankToCash) radioBankToCash.addEventListener('change', updateTransferSourceHint);
+  if (radioCashToBank) radioCashToBank.addEventListener('change', updateTransferSourceHint);
+
+  if (amountInput) {
+    amountInput.addEventListener('input', (e) => {
+      const rawVal = parseRupiahInput(e.target.value);
+      e.target.value = rawVal > 0 ? rawVal.toLocaleString('id-ID') : '';
+      if (wordHint) wordHint.textContent = numberToIndonesianWords(rawVal);
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const amount = parseRupiahInput(amountInput.value);
+    const date = document.getElementById('transferDateInput').value;
+    const note = document.getElementById('transferNoteInput').value.trim();
+    const isBankToCash = radioBankToCash ? radioBankToCash.checked : true;
+
+    if (!amount || amount <= 0) {
+      showToast('Nominal pindah dana harus lebih dari 0!', 'danger');
+      amountInput.focus();
+      return;
+    }
+    if (!date) {
+      showToast('Pilih tanggal transaksi!', 'danger');
+      return;
+    }
+
+    const totals = calculateTotals();
+    const sourceBal = isBankToCash ? totals.bankBalance : totals.cashBalance;
+    if (amount > sourceBal) {
+      showToast(`Peringatan: Nominal melebihi saldo ${isBankToCash ? 'Bank' : 'Cash'} saat ini (${formatRupiah(sourceBal)}).`, 'pink');
+    }
+
+    const newTx = {
+      id: generateId(),
+      type: 'transfer',
+      amount,
+      category: isBankToCash ? 'Tarik Tunai' : 'Setor Tunai',
+      fromWallet: isBankToCash ? 'bank' : 'cash',
+      toWallet: isBankToCash ? 'cash' : 'bank',
+      date,
+      note: note || (isBankToCash ? 'Tarik Tunai (Bank ➔ Cash)' : 'Setor Tunai (Cash ➔ Bank)'),
+      createdAt: Date.now()
+    };
+
+    state.transactions.unshift(newTx);
+    saveTransactions();
+    showToast(`Berhasil memindahkan saldo ${formatRupiah(amount)}!`, 'success');
+    closeModal('modalTransferWallet');
+    renderCurrentTab();
+  });
+}
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   loadAllData();
   updateDateHeader();
   initTransactionEvents();
   initTransactionFilterEvents();
+  initTransferEvents();
   initBudgetEvents();
   initGoalEvents();
   initReportEvents();

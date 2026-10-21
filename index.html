@@ -81,6 +81,28 @@
             </div>
             <div class="balance-amount" id="totalBalanceDisplay">Rp 0</div>
 
+            <!-- Pembagian Saldo Cash & Bank/Digital -->
+            <div class="balance-wallet-row">
+              <div class="wallet-stat-card wallet-cash">
+                <div class="wallet-stat-header">
+                  <span class="wallet-stat-badge"><i class="fa-solid fa-money-bill-wave"></i> Uang Cash</span>
+                </div>
+                <div class="wallet-stat-amount" id="cashBalanceDisplay">Rp 0</div>
+              </div>
+              <div class="wallet-stat-card wallet-bank">
+                <div class="wallet-stat-header">
+                  <span class="wallet-stat-badge"><i class="fa-solid fa-building-columns"></i> Bank & Digital</span>
+                </div>
+                <div class="wallet-stat-amount" id="bankBalanceDisplay">Rp 0</div>
+              </div>
+            </div>
+
+            <div class="balance-transfer-bar">
+              <button type="button" class="btn-transfer-pill" onclick="openTransferModal()">
+                <i class="fa-solid fa-right-left"></i> Pindah Dana (Tarik / Setor)
+              </button>
+            </div>
+
             <div class="balance-stats-row">
               <div class="stat-pill stat-income">
                 <div class="stat-pill-icon"><i class="fa-solid fa-arrow-down-left"></i></div>
@@ -135,13 +157,13 @@
             <div class="quick-btn-icon bg-expense-soft"><i class="fa-solid fa-minus"></i></div>
             <span>Pengeluaran</span>
           </button>
+          <button type="button" class="quick-btn" onclick="openTransferModal()">
+            <div class="quick-btn-icon bg-transfer-soft"><i class="fa-solid fa-right-left"></i></div>
+            <span>Pindah Dana</span>
+          </button>
           <button type="button" class="quick-btn" onclick="openGoalModal()">
             <div class="quick-btn-icon bg-goal-soft"><i class="fa-solid fa-piggy-bank"></i></div>
             <span>Tabungan</span>
-          </button>
-          <button type="button" class="quick-btn" onclick="navigateToTab('budget')">
-            <div class="quick-btn-icon bg-purple-soft"><i class="fa-solid fa-sliders"></i></div>
-            <span>Anggaran</span>
           </button>
         </div>
 
@@ -219,6 +241,14 @@
               <select id="txFilterCategory" class="styled-select">
                 <option value="all">Semua Kategori</option>
                 <!-- Generated dynamically -->
+              </select>
+            </div>
+            <div class="form-group-sm">
+              <label for="txFilterWallet"><i class="fa-solid fa-wallet"></i> Sumber Dana</label>
+              <select id="txFilterWallet" class="styled-select">
+                <option value="all">Semua Sumber Dana</option>
+                <option value="cash">💵 Uang Cash (Tunai)</option>
+                <option value="bank">💳 Bank / Digital</option>
               </select>
             </div>
             <div class="form-group-sm">
@@ -383,6 +413,31 @@
               Bersih</span>
             <h3 class="report-stat-value text-purple" id="reportNetTotal">Rp 0</h3>
             <span class="report-stat-hint" id="reportNetHint">Pemasukan seimbang dengan pengeluaran</span>
+          </div>
+        </div>
+
+        <!-- Wallet Breakdown Card in Report -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fa-solid fa-wallet text-pink"></i> Rincian Pengeluaran & Pemasukan per Dompet</h3>
+          </div>
+          <div class="report-wallet-container">
+            <div class="report-wallet-card">
+              <div class="report-wallet-header">
+                <i class="fa-solid fa-money-bill-wave text-income"></i>
+                <span>Uang Cash (Tunai)</span>
+              </div>
+              <div class="report-wallet-amount" id="reportCashExpTotal">Rp 0</div>
+              <div class="report-wallet-sub" id="reportCashIncSub">Masuk: Rp 0</div>
+            </div>
+            <div class="report-wallet-card">
+              <div class="report-wallet-header">
+                <i class="fa-solid fa-building-columns text-purple"></i>
+                <span>Bank / Digital</span>
+              </div>
+              <div class="report-wallet-amount" id="reportBankExpTotal">Rp 0</div>
+              <div class="report-wallet-sub" id="reportBankIncSub">Masuk: Rp 0</div>
+            </div>
           </div>
         </div>
 
@@ -563,6 +618,39 @@
           </label>
         </div>
 
+        <!-- Sumber Dana / Dompet: Cash vs Bank/Digital -->
+        <div class="form-group mb-3">
+          <label class="form-label" id="txWalletLabel">Sumber Dana <span class="required">*</span></label>
+          <div class="wallet-selector-grid">
+            <label class="wallet-select-option" id="labelWalletCash">
+              <input type="radio" name="txWallet" value="cash" id="radioWalletCash">
+              <div class="wallet-option-content">
+                <div class="wallet-option-icon cash-icon">
+                  <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <div class="wallet-option-text">
+                  <span class="wallet-option-name">Uang Cash (Tunai)</span>
+                  <span class="wallet-option-sub" id="modalCashBalanceHint">Saldo: Rp 0</span>
+                </div>
+                <div class="wallet-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+              </div>
+            </label>
+            <label class="wallet-select-option" id="labelWalletBank">
+              <input type="radio" name="txWallet" value="bank" checked id="radioWalletBank">
+              <div class="wallet-option-content">
+                <div class="wallet-option-icon bank-icon">
+                  <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div class="wallet-option-text">
+                  <span class="wallet-option-name">Bank / Digital</span>
+                  <span class="wallet-option-sub" id="modalBankBalanceHint">Saldo: Rp 0</span>
+                </div>
+                <div class="wallet-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <!-- Nominal Input with Rupiah Prefix -->
         <div class="form-group">
           <label for="txAmountInput" class="form-label">Nominal (Rp) <span class="required">*</span></label>
@@ -571,6 +659,14 @@
             <input type="text" id="txAmountInput" inputmode="numeric" placeholder="0" class="input-currency" required>
           </div>
           <span class="input-hint" id="txAmountWordHint">Nol rupiah</span>
+          <!-- Live Preview Banner for Wallet & Expense -->
+          <div id="txWalletLiveInfo" class="wallet-live-banner">
+            <div class="live-banner-icon"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="live-banner-content">
+              <div class="live-banner-title" id="txWalletLiveTitle">Pengeluaran dari Bank / Digital</div>
+              <div class="live-banner-sub" id="txWalletLiveSub">Sisa saldo setelah pengeluaran: Rp 0</div>
+            </div>
+          </div>
         </div>
 
         <!-- Category Grid / Select -->
@@ -774,6 +870,32 @@
           </div>
         </div>
 
+        <div class="form-group" id="goalDepositWalletGroup">
+          <label class="form-label">Pilih Dompet Sumber / Tujuan</label>
+          <div class="wallet-selector-grid">
+            <label class="wallet-select-option">
+              <input type="radio" name="goalDepositWallet" value="cash" id="radioGoalDepositCash">
+              <div class="wallet-option-content">
+                <div class="wallet-option-icon cash-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="wallet-option-text">
+                  <span class="wallet-option-name">Uang Cash</span>
+                  <span class="wallet-option-sub" id="goalDepositCashHint">Saldo: Rp 0</span>
+                </div>
+              </div>
+            </label>
+            <label class="wallet-select-option">
+              <input type="radio" name="goalDepositWallet" value="bank" checked id="radioGoalDepositBank">
+              <div class="wallet-option-content">
+                <div class="wallet-option-icon bank-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="wallet-option-text">
+                  <span class="wallet-option-name">Bank / Digital</span>
+                  <span class="wallet-option-sub" id="goalDepositBankHint">Saldo: Rp 0</span>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div class="form-checkbox-group">
           <label class="custom-checkbox">
             <input type="checkbox" id="chkSyncWithBalance" checked>
@@ -787,6 +909,84 @@
           <button type="button" class="btn-secondary" onclick="closeModal('modalGoalDeposit')">Batal</button>
           <button type="submit" class="btn-primary" id="btnSubmitDeposit">
             <i class="fa-solid fa-check"></i> Proses Alokasi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PINDAH DANA / TRANSFER CASH <-> BANK -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalTransferWallet">
+    <div class="modal-sheet">
+      <div class="sheet-handle"></div>
+      <div class="modal-header">
+        <h3 class="modal-title">Pindah Dana Antar Dompet</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('modalTransferWallet')" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formTransferWallet" autocomplete="off">
+        <p class="modal-desc">Pindahkan saldo antar uang tunai (cash) dan rekening bank / e-wallet digital Anda.</p>
+
+        <!-- Transfer Type Toggle -->
+        <div class="transfer-direction-grid mb-3">
+          <label class="transfer-dir-btn" id="labelDirWithdraw">
+            <input type="radio" name="transferDirection" value="bank_to_cash" checked id="radioBankToCash">
+            <div class="dir-btn-inner">
+              <div class="dir-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+              <div class="dir-text">
+                <span class="dir-title">Tarik Tunai</span>
+                <span class="dir-sub">Bank ➔ Uang Cash</span>
+              </div>
+            </div>
+          </label>
+          <label class="transfer-dir-btn" id="labelDirDeposit">
+            <input type="radio" name="transferDirection" value="cash_to_bank" id="radioCashToBank">
+            <div class="dir-btn-inner">
+              <div class="dir-icon"><i class="fa-solid fa-building-columns"></i></div>
+              <div class="dir-text">
+                <span class="dir-title">Setor Tunai</span>
+                <span class="dir-sub">Uang Cash ➔ Bank</span>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Available Balance Info Box -->
+        <div class="transfer-balance-info" id="transferSourceBalanceInfo">
+          <span class="t-info-label">Saldo Sumber Tersedia:</span>
+          <span class="t-info-val" id="transferSourceBalanceDisplay">Rp 0</span>
+        </div>
+
+        <!-- Nominal Input -->
+        <div class="form-group">
+          <label for="transferAmountInput" class="form-label">Nominal Pindah Dana (Rp) <span class="required">*</span></label>
+          <div class="input-currency-wrapper">
+            <span class="currency-prefix">Rp</span>
+            <input type="text" id="transferAmountInput" inputmode="numeric" placeholder="0" class="input-currency" required>
+          </div>
+          <span class="input-hint" id="transferAmountWordHint">Nol rupiah</span>
+        </div>
+
+        <!-- Tanggal -->
+        <div class="form-group">
+          <label for="transferDateInput" class="form-label">Tanggal <span class="required">*</span></label>
+          <input type="date" id="transferDateInput" class="styled-input" required>
+        </div>
+
+        <!-- Catatan -->
+        <div class="form-group">
+          <label for="transferNoteInput" class="form-label">Catatan (Opsional)</label>
+          <input type="text" id="transferNoteInput" class="styled-input" placeholder="Contoh: Tarik tunai ATM BCA, Setor tunai Indomaret">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalTransferWallet')">Batal</button>
+          <button type="submit" class="btn-primary" id="btnSubmitTransfer">
+            <i class="fa-solid fa-check"></i> Konfirmasi Pindah Dana
           </button>
         </div>
       </form>
